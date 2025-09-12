@@ -1,0 +1,78 @@
+{% schema %}
+{
+  "name": "aCuotaz Headband API",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Configuración del API"
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Habilitar Banner",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "client_id",
+      "label": "Client ID",
+      "default": "acuotaz_shopify_test",
+      "info": "Token de autorización para el API"
+    },
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "URL del API",
+      "default": "https://apurata.com/pos/acuotaz-head-band",
+      "info": "Endpoint del API para obtener el HTML del banner"
+    }
+  ]
+}
+{% endschema %}
+
+{% comment %}
+  aCuotaz Headband - API Version
+  Solo llama al API y muestra el HTML retornado
+{% endcomment %}
+
+{% assign client_id = block.settings.client_id | default: 'acuotaz_shopify_test' %}
+{% assign api_url = block.settings.api_url | default: 'https://apurata.com/pos/acuotaz-head-band' %}
+{% assign enabled = block.settings.enabled | default: true %}
+
+{% if enabled %}
+<div class="acuotaz-headband-container" id="acuotaz-headband-{{ block.id }}">
+  <div class="acuotaz-loading" style="text-align: center; padding: 20px;">
+    Cargando ofertas de aCuotaz...
+  </div>
+</div>
+
+<script>
+(function() {
+  const container = document.getElementById('acuotaz-headband-{{ block.id }}');
+  if (!container) return;
+  
+  // Hacer la solicitud al API
+  fetch('{{ api_url }}', {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer {{ client_id }}',
+      'Client_id': '{{ client_id }}'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Error en la respuesta del API: ' + response.status);
+    }
+    return response.text();
+  })
+  .then(html => {
+    container.innerHTML = html;
+  })
+  .catch(error => {
+    console.error('Error cargando el banner de aCuotaz:', error);
+    container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666;">No se pudieron cargar las ofertas en este momento.</div>';
+  });
+})();
+</script>
+{% endif %}

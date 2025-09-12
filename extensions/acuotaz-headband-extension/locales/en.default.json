@@ -1,0 +1,27 @@
+{
+  "acuotaz_banner": {
+    "title": "aCuotaz Banner",
+    "settings": {
+      "client_id": {
+        "label": "Client ID",
+        "info": "Your aCuotaz client identifier"
+      },
+      "apurata_domain": {
+        "label": "API Domain",
+        "info": "The Apurata API domain URL"
+      },
+      "desktop_text": {
+        "label": "Desktop Text",
+        "info": "Text shown on desktop devices"
+      },
+      "mobile_text": {
+        "label": "Mobile Text",
+        "info": "Text shown on mobile devices"
+      },
+      "highlight_text": {
+        "label": "Highlight Text",
+        "info": "Highlighted text in the banner"
+      }
+    }
+  }
+}
