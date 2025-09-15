@@ -1,0 +1,115 @@
+{% schema %}
+{
+  "name": "aCuotaz Product Addon",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Configuración del API"
+    },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Habilitar Addon",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "client_id",
+      "label": "Client ID",
+      "default": "acuotaz_shopify_test",
+      "info": "Token de autorización para el API"
+    },
+    {
+      "type": "text",
+      "id": "api_base_url",
+      "label": "URL Base del API",
+      "default": "https://apurata.com/pos/pay-with-apurata-add-on",
+      "info": "URL base del API para obtener el HTML del addon"
+    }
+  ]
+}
+{% endschema %}
+
+{% comment %}
+  aCuotaz Addon - API Version
+  Este bloque funciona como un widget que se puede colocar en cualquier parte de la tienda,
+  no se va al header como el headband.
+{% endcomment %}
+
+{% assign client_id = block.settings.client_id | default: 'acuotaz_shopify_test' %}
+{% assign api_base_url = block.settings.api_base_url | default: 'https://apurata.com/pos/pay-with-apurata-add-on' %}
+{% assign enabled = block.settings.enabled | default: true %}
+
+{% if enabled %}
+<div class="acuotaz-addon-container" id="acuotaz-addon-{{ block.id }}">
+  <div class="acuotaz-loading" style="text-align: center; padding: 10px; color: #666; font-size: 14px;">
+    Cargando información de aCuotaz...
+  </div>
+</div>
+
+<script>
+(function() {
+  const container = document.getElementById('acuotaz-addon-{{ block.id }}');
+  if (!container) return;
+
+  // Simple function to get product price from page
+  function getProductPrice() {
+    const priceSelectors = [
+      '.price',
+      '.product-price',
+      '[class*="price"]',
+      '[class*="Price"]',
+      '.money'
+    ];
+
+    for (const selector of priceSelectors) {
+      const priceElements = document.querySelectorAll(selector);
+      for (const priceElement of priceElements) {
+        const priceText = priceElement.textContent || priceElement.innerText;
+        if (priceText) {
+          // Handle Peruvian format: S/. 200.00 PEN
+          const peruMatch = priceText.match(/S\/\.?\s*(\d+(?:[.,]\d{2})?)/);
+          if (peruMatch) {
+            const price = parseFloat(peruMatch[1].replace(',', '.'));
+            if (!isNaN(price) && price > 0) {
+              return price;
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  // Load addon content
+  function loadAddon() {
+    const price = getProductPrice();
+
+    if (!price) {
+      container.innerHTML = '<div style="text-align: center; color: #999;">Precio no disponible</div>';
+      return;
+    }
+
+    container.innerHTML = '<div style="text-align: center; color: #666;">Cargando...</div>';
+
+    fetch('{{ api_base_url }}/' + price + '?page=product', {
+      headers: { 'Client_id': '{{ client_id }}' }
+    })
+    .then(response => response.text())
+    .then(html => container.innerHTML = html || 'Sin información disponible')
+    .catch(() => container.innerHTML = 'Error al cargar');
+  }
+
+  // Load initially
+  loadAddon();
+
+  // Reload on variant changes
+  document.addEventListener('change', function(e) {
+    if (e.target.matches('input[name="id"], select[name="id"]')) {
+      setTimeout(loadAddon, 100);
+    }
+  });
+})();
+</script>
+{% endif %}

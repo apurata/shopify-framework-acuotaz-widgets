@@ -23,5 +23,22 @@
         "info": "Highlighted text in the banner"
       }
     }
+  },
+  "acuotaz_addon": {
+    "title": "aCuotaz Addon",
+    "settings": {
+      "client_id": {
+        "label": "Client ID",
+        "info": "Your aCuotaz client identifier"
+      },
+      "api_base_url": {
+        "label": "API Base URL",
+        "info": "The base URL for the aCuotaz addon API"
+      },
+      "enabled": {
+        "label": "Enable Addon",
+        "info": "Enable or disable the aCuotaz addon widget"
+      }
+    }
   }
 }
