@@ -33,7 +33,6 @@
 
 {% comment %}
   aCuotaz Headband - API Version
-  Solo llama al API y muestra el HTML retornado
 {% endcomment %}
 
 {% assign client_id = block.settings.client_id | default: 'acuotaz_shopify_test' %}
@@ -41,18 +40,34 @@
 {% assign enabled = block.settings.enabled | default: true %}
 
 {% if enabled %}
-<div class="acuotaz-headband-container" id="acuotaz-headband-{{ block.id }}">
-  <div class="acuotaz-loading" style="text-align: center; padding: 20px;">
+<div class="acuotaz-headband-container acuotaz-header-banner" id="acuotaz-headband-{{ block.id }}">
+  <div class="acuotaz-loading" style="text-align: center; padding: 10px;">
     Cargando ofertas de aCuotaz...
   </div>
 </div>
+
+<style>
+.acuotaz-header-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+}
+body {
+  padding-top: 50px !important;
+}
+</style>
 
 <script>
 (function() {
   const container = document.getElementById('acuotaz-headband-{{ block.id }}');
   if (!container) return;
-  
-  // Hacer la solicitud al API
+
   fetch('{{ api_url }}', {
     method: 'GET',
     headers: {
@@ -71,7 +86,7 @@
   })
   .catch(error => {
     console.error('Error cargando el banner de aCuotaz:', error);
-    container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666;">No se pudieron cargar las ofertas en este momento.</div>';
+    container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
   });
 })();
 </script>
