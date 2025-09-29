@@ -1,4 +1,9 @@
 {
+  "ratings": {
+    "stars": {
+      "label": "Rating"
+    }
+  },
   "acuotaz_banner": {
     "title": "aCuotaz Banner",
     "settings": {
