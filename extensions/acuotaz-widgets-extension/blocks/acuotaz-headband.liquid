@@ -13,13 +13,6 @@
       "label": "Client ID",
       "info": "Token de autorización para el API"
     },
-    {
-      "type": "text",
-      "id": "api_url",
-      "label": "URL del API",
-      "default": "https://apurata.com/pos/acuotaz-head-band",
-      "info": "Endpoint del API para obtener el HTML del banner"
-    }
   ]
 }
 {% endschema %}
@@ -29,7 +22,7 @@
 {% endcomment %}
 
 {% assign client_id = block.settings.client_id %}
-{% assign api_url = block.settings.api_url | default: 'https://apurata.com/pos/acuotaz-head-band' %}
+{% assign api_url = 'https://apurata.com/pos/acuotaz-head-band' %}
 
 {% comment %} Solo renderizar el headband si hay un client_id configurado {% endcomment %}
 {% if client_id and client_id != blank %}

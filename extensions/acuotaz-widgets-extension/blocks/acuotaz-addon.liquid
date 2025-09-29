@@ -13,13 +13,6 @@
       "label": "Client ID",
       "info": "Token de autorización para el API"
     },
-    {
-      "type": "text",
-      "id": "api_base_url",
-      "label": "URL Base del API",
-      "default": "https://apurata.com/pos/pay-with-apurata-add-on",
-      "info": "URL base del API para obtener el HTML del addon"
-    }
   ]
 }
 {% endschema %}
@@ -31,7 +24,7 @@
 {% endcomment %}
 
 {% assign client_id = block.settings.client_id %}
-{% assign api_base_url = block.settings.api_base_url | default: 'https://apurata.com/pos/pay-with-apurata-add-on' %}
+{% assign api_base_url = 'https://apurata.com/pos/pay-with-apurata-add-on' %}
 
 {% comment %} Solo renderizar el addon si hay un client_id configurado {% endcomment %}
 {% if client_id and client_id != blank %}
