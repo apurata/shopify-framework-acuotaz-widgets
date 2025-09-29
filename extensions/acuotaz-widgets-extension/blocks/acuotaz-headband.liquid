@@ -1,6 +1,6 @@
 {% schema %}
 {
-  "name": "aCuotaz Headband API",
+  "name": "aCuotaz Headband",
   "target": "section",
   "settings": [
     {
@@ -8,16 +8,9 @@
       "content": "Configuración del API"
     },
     {
-      "type": "checkbox",
-      "id": "enabled",
-      "label": "Habilitar Banner",
-      "default": true
-    },
-    {
       "type": "text",
       "id": "client_id",
       "label": "Client ID",
-      "default": "acuotaz_shopify_test",
       "info": "Token de autorización para el API"
     },
     {
@@ -32,19 +25,21 @@
 {% endschema %}
 
 {% comment %}
-  aCuotaz Headband - API Version
+  aCuotaz Headband
 {% endcomment %}
 
-{% assign client_id = block.settings.client_id | default: 'acuotaz_shopify_test' %}
+{% assign client_id = block.settings.client_id %}
 {% assign api_url = block.settings.api_url | default: 'https://apurata.com/pos/acuotaz-head-band' %}
-{% assign enabled = block.settings.enabled | default: true %}
 
-{% if enabled %}
+{% comment %} Solo renderizar el headband si hay un client_id configurado {% endcomment %}
+{% if client_id and client_id != blank %}
 <div class="acuotaz-headband-container acuotaz-header-banner" id="acuotaz-headband-{{ block.id }}">
   <div class="acuotaz-loading" style="text-align: center; padding: 10px;">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
     Cargando ofertas de aCuotaz...
   </div>
 </div>
+{% endif %}
 
 <style>
 .acuotaz-header-banner {
@@ -63,6 +58,7 @@ body {
 }
 </style>
 
+{% if client_id and client_id != blank %}
 <script>
 (function() {
   const container = document.getElementById('acuotaz-headband-{{ block.id }}');

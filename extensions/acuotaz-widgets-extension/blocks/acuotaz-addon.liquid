@@ -8,16 +8,9 @@
       "content": "Configuración del API"
     },
     {
-      "type": "checkbox",
-      "id": "enabled",
-      "label": "Habilitar Addon",
-      "default": true
-    },
-    {
       "type": "text",
       "id": "client_id",
       "label": "Client ID",
-      "default": "acuotaz_shopify_test",
       "info": "Token de autorización para el API"
     },
     {
@@ -32,49 +25,44 @@
 {% endschema %}
 
 {% comment %}
-  aCuotaz Addon - API Version
+  aCuotaz Addon
   Este bloque funciona como un widget que se puede colocar en cualquier parte de la tienda,
   no se va al header como el headband.
 {% endcomment %}
 
-{% assign client_id = block.settings.client_id | default: 'acuotaz_shopify_test' %}
+{% assign client_id = block.settings.client_id %}
 {% assign api_base_url = block.settings.api_base_url | default: 'https://apurata.com/pos/pay-with-apurata-add-on' %}
-{% assign enabled = block.settings.enabled | default: true %}
 
-{% if enabled %}
+{% comment %} Solo renderizar el addon si hay un client_id configurado {% endcomment %}
+{% if client_id and client_id != blank %}
 <div class="acuotaz-addon-container" id="acuotaz-addon-{{ block.id }}">
   <div class="acuotaz-loading" style="text-align: center; padding: 10px; color: #666; font-size: 14px;">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
     Cargando información de aCuotaz...
   </div>
 </div>
+{% endif %}
 
+{% if client_id and client_id != blank %}
 <script>
 (function() {
   const container = document.getElementById('acuotaz-addon-{{ block.id }}');
   if (!container) return;
 
-  // Simple function to get product price from page
   function getProductPrice() {
-    const priceSelectors = [
-      '.price',
-      '.product-price',
-      '[class*="price"]',
-      '[class*="Price"]',
-      '.money'
-    ];
+    // Single selector with all price-related elements
+    const priceElements = document.querySelectorAll('.price, .product-price, [class*="price"], [class*="Price"], .money');
 
-    for (const selector of priceSelectors) {
-      const priceElements = document.querySelectorAll(selector);
-      for (const priceElement of priceElements) {
-        const priceText = priceElement.textContent || priceElement.innerText;
-        if (priceText) {
-          // Handle Peruvian format: S/. 200.00 PEN
-          const peruMatch = priceText.match(/S\/\.?\s*(\d+(?:[.,]\d{2})?)/);
-          if (peruMatch) {
-            const price = parseFloat(peruMatch[1].replace(',', '.'));
-            if (!isNaN(price) && price > 0) {
-              return price;
-            }
+    // Single loop through all found elements
+    for (const priceElement of priceElements) {
+      const priceText = priceElement.textContent || priceElement.innerText;
+      if (priceText) {
+        // Handle Peruvian format: S/. 200.00 PEN
+        const peruMatch = priceText.match(/S\/\.?\s*(\d+(?:[.,]\d{2})?)/);
+        if (peruMatch) {
+          const price = parseFloat(peruMatch[1].replace(',', '.'));
+          if (!isNaN(price) && price > 0) {
+            return price;
           }
         }
       }
