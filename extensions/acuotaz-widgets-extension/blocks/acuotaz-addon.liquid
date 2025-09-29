@@ -50,24 +50,38 @@
   if (!container) return;
 
   function getProductPrice() {
-    // Single selector with all price-related elements
-    const priceElements = document.querySelectorAll('.price, .product-price, [class*="price"], [class*="Price"], .money');
+    // Usar el precio del producto de Shopify directamente
+    {% if product %}
+      return {{ product.price | money_without_currency | remove: ',' }};
+    {% else %}
+      // Fallback: buscar en la página si no hay objeto product
+      const priceElements = document.querySelectorAll('.price, .product-price, [class*="price"], [class*="Price"], .money');
 
-    // Single loop through all found elements
-    for (const priceElement of priceElements) {
-      const priceText = priceElement.textContent || priceElement.innerText;
-      if (priceText) {
-        // Handle Peruvian format: S/. 200.00 PEN
-        const peruMatch = priceText.match(/S\/\.?\s*(\d+(?:[.,]\d{2})?)/);
-        if (peruMatch) {
-          const price = parseFloat(peruMatch[1].replace(',', '.'));
-          if (!isNaN(price) && price > 0) {
-            return price;
+      for (const priceElement of priceElements) {
+        const priceText = priceElement.textContent || priceElement.innerText;
+        if (priceText) {
+          // Buscar múltiples formatos de moneda
+          const patterns = [
+            /S\/\.?\s*(\d+(?:[.,]\d{2})?)/,  // S/. 200.00
+            /\$(\d+(?:[.,]\d{2})?)/,         // $200.00
+            /€(\d+(?:[.,]\d{2})?)/,          // €200.00
+            /(\d+(?:[.,]\d{2})?)\s*PEN/,     // 200.00 PEN
+            /(\d+(?:[.,]\d{2})?)\s*USD/      // 200.00 USD
+          ];
+
+          for (const pattern of patterns) {
+            const match = priceText.match(pattern);
+            if (match) {
+              const price = parseFloat(match[1].replace(',', '.'));
+              if (!isNaN(price) && price > 0) {
+                return price;
+              }
+            }
           }
         }
       }
-    }
-    return null;
+      return null;
+    {% endif %}
   }
 
   // Load addon content
