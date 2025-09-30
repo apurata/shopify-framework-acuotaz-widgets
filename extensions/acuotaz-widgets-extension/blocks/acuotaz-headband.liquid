@@ -32,6 +32,13 @@
     Cargando ofertas de aCuotaz...
   </div>
 </div>
+{% else %}
+<div class="acuotaz-headband-container acuotaz-header-banner" style="background-color: #f8f8f8; border-bottom: 1px solid #e0e0e0; padding: 10px; text-align: center;">
+  <div style="color: #666; font-size: 14px;">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+    Configura tu Client ID para ver el headband de aCuotaz
+  </div>
+</div>
 {% endif %}
 
 <style>
@@ -66,6 +73,9 @@ body {
   })
   .then(response => {
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('TOKEN_INVALID');
+      }
       throw new Error('Error en la respuesta del API: ' + response.status);
     }
     return response.text();
@@ -75,7 +85,11 @@ body {
   })
   .catch(error => {
     console.error('Error cargando el banner de aCuotaz:', error);
-    container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
+    if (error.message === 'TOKEN_INVALID') {
+      container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
+    } else {
+      container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
+    }
   });
 })();
 </script>

@@ -31,7 +31,14 @@
 <div class="acuotaz-addon-container" id="acuotaz-addon-{{ block.id }}">
   <div class="acuotaz-loading" style="text-align: center; padding: 10px; color: #666; font-size: 14px;">
     <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
-    Cargando información de aCuotaz...
+    Cargando información de aCuotaz... Espera un momento
+  </div>
+</div>
+{% else %}
+<div class="acuotaz-addon-container" style="text-align: center; padding: 10px; color: #666; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 4px; background-color: #f8f8f8;">
+  <div>
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+    Configura tu Client ID para ver el addon de aCuotaz
   </div>
 </div>
 {% endif %}
@@ -86,14 +93,29 @@
       return;
     }
 
-    container.innerHTML = '<div style="text-align: center; color: #666;">Cargando...</div>';
-
     fetch('{{ api_base_url }}/' + price + '?page=product', {
       headers: { 'Client_id': '{{ client_id }}' }
     })
-    .then(response => response.text())
-    .then(html => container.innerHTML = html || 'Sin información disponible')
-    .catch(() => container.innerHTML = 'Error al cargar');
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('TOKEN_INVALID');
+        }
+        throw new Error('Error en la respuesta del API: ' + response.status);
+      }
+      return response.text();
+    })
+    .then(html => {
+      container.innerHTML = html || 'Sin información disponible';
+    })
+    .catch(error => {
+      console.error('Error cargando el addon de aCuotaz:', error);
+      if (error.message === 'TOKEN_INVALID') {
+        container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
+      } else {
+        container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
+      }
+    });
   }
 
   // Load initially
