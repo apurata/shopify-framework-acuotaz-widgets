@@ -12,30 +12,26 @@
       "id": "client_id",
       "label": "Client ID",
       "info": "Token de autorización para el API"
-    },
+    }
   ]
 }
 {% endschema %}
 
-{% comment %}
-  aCuotaz Headband
-{% endcomment %}
-
 {% assign client_id = block.settings.client_id %}
 {% assign api_url = 'https://apurata.com/pos/acuotaz-head-band' %}
 
-{% comment %} Solo renderizar el headband si hay un client_id configurado {% endcomment %}
+{% comment %} Only render the headband if there's a configured client_id {% endcomment %}
 {% if client_id and client_id != blank %}
 <div class="acuotaz-headband-container acuotaz-header-banner" id="acuotaz-headband-{{ block.id }}">
-  <div class="acuotaz-loading" style="text-align: center; padding: 10px;">
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+  <div class="acuotaz-loading">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon">
     Cargando ofertas de aCuotaz...
   </div>
 </div>
 {% else %}
-<div class="acuotaz-headband-container acuotaz-header-banner" style="background-color: #f8f8f8; border-bottom: 1px solid #e0e0e0; padding: 10px; text-align: center;">
-  <div style="color: #666; font-size: 14px;">
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+<div class="acuotaz-headband-container acuotaz-header-banner acuotaz-config-message">
+  <div class="acuotaz-config-text">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon">
     Configura tu Client ID para ver el headband de aCuotaz
   </div>
 </div>
@@ -43,7 +39,7 @@
 
 <style>
 .acuotaz-header-banner {
-  position: absolute; /* fixed para sticky */
+  position: absolute; /* fixed for sticky */
   top: 0;
   left: 0;
   right: 0;
@@ -53,6 +49,31 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   width: 100%;
 }
+
+.acuotaz-loading {
+  text-align: center;
+  padding: 10px;
+}
+
+.acuotaz-config-message {
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px;
+  text-align: center;
+}
+
+.acuotaz-config-text {
+  color: #666;
+  font-size: 14px;
+}
+
+.acuotaz-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
 body {
   padding-top: 50px !important;
 }
@@ -67,7 +88,6 @@ body {
   fetch('{{ api_url }}', {
     method: 'GET',
     headers: {
-      'Authorization': 'Bearer {{ client_id }}',
       'Client_id': '{{ client_id }}'
     }
   })
@@ -76,7 +96,7 @@ body {
       if (response.status === 401) {
         throw new Error('TOKEN_INVALID');
       }
-      throw new Error('Error en la respuesta del API: ' + response.status);
+      throw new Error('API response error: ' + response.status);
     }
     return response.text();
   })
@@ -84,11 +104,11 @@ body {
     container.innerHTML = html;
   })
   .catch(error => {
-    console.error('Error cargando el banner de aCuotaz:', error);
+    console.error('Error loading aCuotaz banner:', error);
     if (error.message === 'TOKEN_INVALID') {
       container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
     } else {
-      container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
+      container.style.display = 'none';
     }
   });
 })();

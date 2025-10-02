@@ -1,0 +1,117 @@
+{% schema %}
+{
+  "name": "Payment Mocker",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Configuración del API"
+    },
+    {
+      "type": "text",
+      "id": "client_id",
+      "label": "Client ID",
+      "info": "Token de autorización para el API"
+    },
+  ]
+}
+{% endschema %}
+
+{% comment %}
+  Payment Mocker: This widget works as a payment mockup widget that can be placed anywhere in the store,
+  it calls the payment-mocker API endpoint to display payment information.
+{% endcomment %}
+
+{% assign client_id = block.settings.client_id %}
+{% assign api_base_url = 'https://apurata.com/pos/info-steps' %}
+
+<style>
+.payment-mocker-loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.payment-mocker-loading img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.payment-mocker-error {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+
+.payment-mocker-error img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+</style>
+
+{% if client_id and client_id != blank %}
+<div class="payment-mocker-container" id="payment-mocker-{{ block.id }}">
+  <div class="payment-mocker-loading">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="Payment Mocker" width="20" height="20">
+    Cargando información de Payment Mocker... Espera un momento
+  </div>
+</div>
+{% else %}
+<div class="payment-mocker-container payment-mocker-error">
+  <div>
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="Payment Mocker" width="20" height="20">
+    Configura tu Client ID para ver el Payment Mocker
+  </div>
+</div>
+{% endif %}
+
+{% if client_id and client_id != blank %}
+<script>
+(function() {
+  const container = document.getElementById('payment-mocker-{{ block.id }}');
+  if (!container) return;
+
+  // Load payment mocker content
+  function loadPaymentMocker() {
+    fetch('{{ api_base_url }}?client_id={{ client_id }}', {
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'User-Agent': 'Mozilla/5.0 (compatible; POS-Client/1.0)'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('TOKEN_INVALID');
+        }
+        throw new Error('API response error: ' + response.status);
+      }
+      return response.text();
+    })
+    .then(html => {
+      container.innerHTML = html || 'Sin información disponible';
+    })
+    .catch(error => {
+      console.error('Error loading Payment Mocker:', error);
+      if (error.message === 'TOKEN_INVALID') {
+        container.innerHTML = '<div class="payment-mocker-error"><img src="{{ "thumbs-up.png" | asset_url }}" alt="Payment Mocker" width="20" height="20">Ingresa un Client ID válido para ver el Payment Mocker</div>';
+      } else {
+        container.innerHTML = '<div class="payment-mocker-error"><img src="{{ "thumbs-up.png" | asset_url }}" alt="Payment Mocker" width="20" height="20">No se pudo cargar el Payment Mocker en este momento.</div>';
+      }
+    });
+  }
+
+  // Load initially
+  loadPaymentMocker();
+})();
+</script>
+{% endif %}

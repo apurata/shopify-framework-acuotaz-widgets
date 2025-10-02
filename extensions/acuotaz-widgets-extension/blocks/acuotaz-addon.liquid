@@ -17,27 +17,53 @@
 }
 {% endschema %}
 
-{% comment %}
-  aCuotaz Addon
-  Este bloque funciona como un widget que se puede colocar en cualquier parte de la tienda,
-  no se va al header como el headband.
-{% endcomment %}
-
 {% assign client_id = block.settings.client_id %}
 {% assign api_base_url = 'https://apurata.com/pos/pay-with-apurata-add-on' %}
 
-{% comment %} Solo renderizar el addon si hay un client_id configurado {% endcomment %}
+<style>
+.acuotaz-loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.acuotaz-loading img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.acuotaz-no-config {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+
+.acuotaz-error {
+  padding: 10px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+</style>
+
 {% if client_id and client_id != blank %}
 <div class="acuotaz-addon-container" id="acuotaz-addon-{{ block.id }}">
-  <div class="acuotaz-loading" style="text-align: center; padding: 10px; color: #666; font-size: 14px;">
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+  <div class="acuotaz-loading">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20">
     Cargando información de aCuotaz... Espera un momento
   </div>
 </div>
 {% else %}
-<div class="acuotaz-addon-container" style="text-align: center; padding: 10px; color: #666; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 4px; background-color: #f8f8f8;">
+<div class="acuotaz-addon-container acuotaz-no-config">
   <div>
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20">
     Configura tu Client ID para ver el addon de aCuotaz
   </div>
 </div>
@@ -50,36 +76,11 @@
   if (!container) return;
 
   function getProductPrice() {
-    // Usar el precio del producto de Shopify directamente
+    // Use Shopify product price directly
     {% if product %}
       return {{ product.price | money_without_currency | remove: ',' }};
     {% else %}
-      // Fallback: buscar en la página si no hay objeto product
-      const priceElements = document.querySelectorAll('.price, .product-price, [class*="price"], [class*="Price"], .money');
-
-      for (const priceElement of priceElements) {
-        const priceText = priceElement.textContent || priceElement.innerText;
-        if (priceText) {
-          // Buscar múltiples formatos de moneda
-          const patterns = [
-            /S\/\.?\s*(\d+(?:[.,]\d{2})?)/,  // S/. 200.00
-            /\$(\d+(?:[.,]\d{2})?)/,         // $200.00
-            /€(\d+(?:[.,]\d{2})?)/,          // €200.00
-            /(\d+(?:[.,]\d{2})?)\s*PEN/,     // 200.00 PEN
-            /(\d+(?:[.,]\d{2})?)\s*USD/      // 200.00 USD
-          ];
-
-          for (const pattern of patterns) {
-            const match = priceText.match(pattern);
-            if (match) {
-              const price = parseFloat(match[1].replace(',', '.'));
-              if (!isNaN(price) && price > 0) {
-                return price;
-              }
-            }
-          }
-        }
-      }
+      // Only works on product pages
       return null;
     {% endif %}
   }
@@ -89,7 +90,7 @@
     const price = getProductPrice();
 
     if (!price) {
-      container.innerHTML = '<div style="text-align: center; color: #999;">Precio no disponible</div>';
+      container.style.display = 'none';
       return;
     }
 
@@ -109,22 +110,29 @@
       container.innerHTML = html || 'Sin información disponible';
     })
     .catch(error => {
-      console.error('Error cargando el addon de aCuotaz:', error);
-      if (error.message === 'TOKEN_INVALID') {
-        container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
-      } else {
-        container.innerHTML = '<div style="padding: 10px; text-align: center; color: #666; font-size: 14px;">No se pudieron cargar las ofertas en este momento.</div>';
-      }
+      console.error('Error loading aCuotaz addon:', error);
+      // Only show error message if there's a configured Client ID
+        if (error.message === 'TOKEN_INVALID') {
+          container.innerHTML = '<div class="acuotaz-error">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
+        } else {
+          container.style.display = 'none';
+        }
     });
   }
 
   // Load initially
   loadAddon();
 
-  // Reload on variant changes
+  // Reload on variant changes - optimized to only trigger on actual product changes
+  let currentVariantId = null;
+
   document.addEventListener('change', function(e) {
     if (e.target.matches('input[name="id"], select[name="id"]')) {
-      setTimeout(loadAddon, 100);
+      const newVariantId = e.target.value; // Selected variant ID (color, size, etc.)
+      if (newVariantId !== currentVariantId) {
+        currentVariantId = newVariantId;
+        setTimeout(loadAddon, 100);
+      }
     }
   });
 })();

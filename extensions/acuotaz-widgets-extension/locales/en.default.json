@@ -39,10 +39,6 @@
       "api_base_url": {
         "label": "API Base URL",
         "info": "The base URL for the aCuotaz addon API"
-      },
-      "enabled": {
-        "label": "Enable Addon",
-        "info": "Enable or disable the aCuotaz addon widget"
       }
     }
   }
