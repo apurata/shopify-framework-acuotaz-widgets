@@ -1,77 +1,98 @@
-# Apurata Shopify Extension Widgets
+# Acuotaz Shopify Widgets
+
+This Shopify app provides theme extension widgets for integrating Acuotaz payment solutions into your Shopify store.
 
 ## Overview
-This Shopify extension provides three customizable widgets for Apurata payment integration:
-- **Acuotaz Headband**: Displays payment information banner
-- **Acuotaz Addon**: Shows payment options on product pages
+
+The Acuotaz Shopify Widgets app provides three customizable widgets that integrate seamlessly with your Shopify theme:
+
+- **Acuotaz Headband**: Displays payment information banner at the top of your store
+- **Acuotaz Addon**: Shows payment options on product pages based on product price
 - **Payment Mocker**: Mockup widget for payment information display
 
-## Features Implemented
+## Installation
 
-### ✅ Acuotaz Headband
-- API correctly connected and positioned
+### For Shopify Store Owners
+
+1. **Install from Shopify App Store**:
+   - Go to your Shopify Admin
+   - Navigate to Apps → App Store
+   - Search for "Acuotaz Widgets"
+   - Click "Install app"
+
+2. **Add widgets to your theme**:
+   - Go to Online Store → Themes
+   - Click "Customize" on your active theme
+   - Navigate to the section where you want to add the widget
+   - Click "Add block" → "Acuotaz Widgets"
+   - Choose the widget you want to add
+
+3. **Configure Client ID**:
+   - In the widget settings, enter your Acuotaz Client ID
+   - Save changes
+   - The widget will automatically load payment information
+
+### Widget Placement
+
+#### 1. Acuotaz Headband
+Add to your theme header for maximum visibility:
+
+**Recommended placement**: Header section
 - Displays payment information banner
-- Responsive design with loading states
-- Error handling for invalid tokens
+- Shows across all pages
+- Responsive design
 
-### ✅ Acuotaz Addon
-- **Product price recognition**: Automatically detects product prices
-- **Variant change detection**: Optimized to reload only when product variants actually change
-- **Smart loading**: Prevents unnecessary API calls when user selects the same variant multiple times
-- **Error handling**: Graceful fallback for API failures
+#### 2. Acuotaz Addon
+Add to product pages for payment options:
 
-### ✅ Payment Mocker
-- Mockup widget for payment information display
-- Configurable client ID
-- Loading and error states
-- API integration with Apurata endpoints
+**Recommended placement**: Product page, after price
+- Automatically detects product price
+- Shows payment options based on price
+- Updates when product variants change
 
-## Technical Implementation
+#### 3. Payment Mocker
+Add anywhere for payment information display:
 
-### Variant Change Optimization
-The addon now uses intelligent variant detection:
-```javascript
-let currentVariantId = null;
-document.addEventListener('change', function(e) {
-  if (e.target.matches('input[name="id"], select[name="id"]')) {
-    const newVariantId = e.target.value; // Selected variant ID (color, size, etc.)
-    if (newVariantId !== currentVariantId) {
-      currentVariantId = newVariantId;
-      setTimeout(loadAddon, 100);
-    }
-  }
-});
+**Recommended placement**: Any section
+- Configurable mockup widget
+- Useful for testing and demonstrations
+
+## For Developers
+
+### Development Setup
+
+1. **Clone the repository**:
+```bash
+git clone <repository-url>
+cd apurata-widgets
 ```
 
-### API Endpoints
-- **Headband**: `https://apurata.com/pos/info-steps`
-- **Addon**: `https://apurata.com/pos/pay-with-apurata-add-on`
-- **Payment Mocker**: `https://apurata.com/pos/info-steps`
+2. **Install dependencies**:
+```bash
+npm install
+```
 
-## Installation & Configuration
+3. **Start development server**:
+```bash
+npm run shopify app dev
+```
 
-### For Developers
-1. Clone the repository
-2. Install dependencies: `pnpm install`
-3. Start development: `shopify app dev`
-4. Configure client ID in each widget's settings
+4. **Configure Client ID** in each widget's settings
 
-### For Merchants
-1. Install the extension from Shopify App Store (when published)
-2. Add widgets to theme sections
-3. Configure Client ID in widget settings
-4. Widgets will automatically appear on product pages
+### Technical Details
 
-## Widget Configuration
-Each widget requires a **Client ID** for API authentication:
-- Go to widget settings
-- Enter your Apurata Client ID
-- Save changes
-- Widget will automatically load payment information
+- **API Endpoints**:
+  - Headband: `https://apurata.com/pos/info-steps`
+  - Addon: `https://apurata.com/pos/pay-with-apurata-add-on`
+  - Payment Mocker: `https://apurata.com/pos/info-steps`
 
-## Status
-- ✅ Headband API connected
-- ✅ Addon price recognition working
-- ✅ Payment Mocker implemented
-- ⚠️ Headband not automatically placed on all views (requires manual theme integration)
+- **Variant Change Optimization**: Smart detection prevents unnecessary API calls
+- **Error Handling**: Graceful fallback for API failures
+- **Responsive Design**: Works on all device sizes
+
+## Support
+
+For support, please contact:
+- **Email**: andy@apurata.com
+- **Website**: https://apurata.com
 
