@@ -1,15 +1,20 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "92b3aa8408bd0a328a21bef72b9f7bec"
-name = "acuotaz-widgets"
+client_id = "191d890ee7817077d5f25ea42fc7f034"
+name = "Apurata Widgets"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
-handle = "acuotaz-widgets-extension"
+
+# App information
+description = "Widgets de pago para integrar opciones de financiamiento con Acuotaz"
+developer_name = "Andy Ñaca"
+developer_email = "andy@apurata.com"
 
 [build]
+automatically_update_urls_on_dev = true
 
 [webhooks]
-api_version = "2025-07"
+api_version = "2026-01"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -17,6 +22,3 @@ scopes = ""
 
 [auth]
 redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
-
-[pos]
-embedded = false
