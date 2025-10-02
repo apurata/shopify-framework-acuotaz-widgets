@@ -24,14 +24,14 @@
 {% if client_id and client_id != blank %}
 <div class="acuotaz-headband-container acuotaz-header-banner" id="acuotaz-headband-{{ block.id }}">
   <div class="acuotaz-loading">
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon" width="20" height="20">
     Cargando ofertas de aCuotaz...
   </div>
 </div>
 {% else %}
 <div class="acuotaz-headband-container acuotaz-header-banner acuotaz-config-message">
   <div class="acuotaz-config-text">
-    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" class="acuotaz-icon" width="20" height="20">
     Configura tu Client ID para ver el headband de aCuotaz
   </div>
 </div>
