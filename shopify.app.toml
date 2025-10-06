@@ -2,8 +2,8 @@
 
 client_id = "191d890ee7817077d5f25ea42fc7f034"
 name = "Acuotaz Widgets"
-application_url = "https://shopify.dev/apps/default-app-home"
-embedded = true
+application_url = "https://apurata.com/api/shopify/oauth/authorize"
+embedded = false
 
 # App information
 description = "Widgets de pago para integrar opciones de financiamiento con Acuotaz"
@@ -15,12 +15,20 @@ automatically_update_urls_on_dev = true
 api_version = "2026-01"
 
 [[webhooks.subscriptions]]
-compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+compliance_topics = ["customers/data_request"]
 uri = "https://apurata.com/api/shopify/webhook/customers/data-request"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/redact"]
+uri = "https://apurata.com/api/shopify/webhook/customers/redact"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["shop/redact"]
+uri = "https://apurata.com/api/shopify/webhook/shop/redact"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+redirect_urls = [ "https://apurata.com/api/shopify/oauth/secret-token", "https://apurata.com/api/shopify/oauth/authorize" ]
