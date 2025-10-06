@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "191d890ee7817077d5f25ea42fc7f034"
-name = "Apurata Widgets"
+name = "Acuotaz Widgets"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
 
