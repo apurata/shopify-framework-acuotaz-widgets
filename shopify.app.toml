@@ -31,4 +31,4 @@ uri = "https://apurata.com/api/shopify/webhook/shop/redact"
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://apurata.com/api/shopify/oauth/secret-token", "https://apurata.com/api/shopify/oauth/authorize" ]
+redirect_urls = []
