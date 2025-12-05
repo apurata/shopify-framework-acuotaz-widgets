@@ -1,0 +1,141 @@
+{% schema %}
+{
+  "name": "Product Addon",
+  "target": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Configuración del API"
+    },
+    {
+      "type": "text",
+      "id": "client_id",
+      "label": "Client ID",
+      "info": "Token de autorización para el API",
+      "default": "acuotaz_shopify_test"
+    },
+  ]
+}
+{% endschema %}
+
+{% assign client_id = block.settings.client_id %}
+{% assign api_base_url = 'https://apurata.com/pos/pay-with-apurata-add-on' %}
+
+<style>
+.acuotaz-loading {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.acuotaz-loading img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.acuotaz-no-config {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+}
+
+.acuotaz-error {
+  padding: 10px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+</style>
+
+{% if client_id and client_id != blank %}
+<div class="acuotaz-addon-container" id="acuotaz-addon-{{ block.id }}">
+  <div class="acuotaz-loading">
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20">
+    Cargando información de aCuotaz... Espera un momento
+  </div>
+</div>
+{% else %}
+<div class="acuotaz-addon-container acuotaz-no-config">
+  <div>
+    <img src="{{ 'thumbs-up.png' | asset_url }}" alt="aCuotaz" width="20" height="20">
+    Configura tu Client ID para ver el addon de aCuotaz
+  </div>
+</div>
+{% endif %}
+
+{% if client_id and client_id != blank %}
+<script>
+(function() {
+  const container = document.getElementById('acuotaz-addon-{{ block.id }}');
+  if (!container) return;
+
+  function getProductPrice() {
+    // Use Shopify product price directly
+    {% if product %}
+      return {{ product.price | money_without_currency | remove: ',' }};
+    {% else %}
+      // Only works on product pages
+      return null;
+    {% endif %}
+  }
+
+  // Load addon content
+  function loadAddon() {
+    const price = getProductPrice();
+
+    if (!price) {
+      container.style.display = 'none';
+      return;
+    }
+
+    fetch('{{ api_base_url }}/' + price + '?page=product', {
+      headers: { 'Client_id': '{{ client_id }}' }
+    })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('TOKEN_INVALID');
+        }
+        throw new Error('Error en la respuesta del API: ' + response.status);
+      }
+      return response.text();
+    })
+    .then(html => {
+      container.innerHTML = html || 'Sin información disponible';
+    })
+    .catch(error => {
+      console.error('Error loading aCuotaz addon:', error);
+      // Only show error message if there's a configured Client ID
+        if (error.message === 'TOKEN_INVALID') {
+          container.innerHTML = '<div class="acuotaz-error">Ingresa un Client ID válido para ver las ofertas de aCuotaz</div>';
+        } else {
+          container.style.display = 'none';
+        }
+    });
+  }
+
+  // Load initially
+  loadAddon();
+
+  // Reload on variant changes - optimized to only trigger on actual product changes
+  let currentVariantId = null;
+
+  document.addEventListener('change', function(e) {
+    if (e.target.matches('input[name="id"], select[name="id"]')) {
+      const newVariantId = e.target.value; // Selected variant ID (color, size, etc.)
+      if (newVariantId !== currentVariantId) {
+        currentVariantId = newVariantId;
+        setTimeout(loadAddon, 100);
+      }
+    }
+  });
+})();
+</script>
+{% endif %}

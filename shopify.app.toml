@@ -1,23 +1,34 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "a40772fbb842d2bc6deb24d7fe0c6392"
-name = "acuotaz-widgets"
-application_url = "https://shopify.dev/apps/default-app-home"
+client_id = "191d890ee7817077d5f25ea42fc7f034"
+name = "Acuotaz Widgets"
+application_url = "https://apurata.com/api/shopify/oauth/widgets/authorize"
 embedded = true
-handle = "acuotaz-widgets-1"
+
+# App information
+description = "Widgets de pago para integrar opciones de financiamiento con Acuotaz"
 
 [build]
-include_config_on_deploy = true
+automatically_update_urls_on_dev = true
 
 [webhooks]
-api_version = "2025-07"
+api_version = "2026-01"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/data_request"]
+uri = "https://apurata.com/api/shopify/webhook/widgets/customers/data-request"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["customers/redact"]
+uri = "https://apurata.com/api/shopify/webhook/widgets/customers/redact"
+
+[[webhooks.subscriptions]]
+compliance_topics = ["shop/redact"]
+uri = "https://apurata.com/api/shopify/webhook/widgets/shop/redact"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
-
-[pos]
-embedded = false
+redirect_urls = [ "https://apurata.com/api/shopify/oauth/widgets/secret-token" ]
