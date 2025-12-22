@@ -83,12 +83,7 @@
 
   // Load payment mocker content
   function loadPaymentMocker() {
-    fetch('{{ api_base_url }}?client_id={{ client_id }}', {
-      headers: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (compatible; POS-Client/1.0)'
-      }
-    })
+    fetch('{{ api_base_url }}?client_id={{ client_id }}')
     .then(response => {
       if (!response.ok) {
         if (response.status === 401) {
