@@ -13,12 +13,19 @@
       "label": "Client ID",
       "info": "Token de autorización para el API",
       "default": "acuotaz_shopify_test"
-    }
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_enabled",
+      "label": "Sticky Headband",
+      "default": false,
+      "info": "El headband se mantiene visible en la parte superior durante el desplazamiento."    }
   ]
 }
 {% endschema %}
 
 {% assign client_id = block.settings.client_id %}
+{% assign sticky_enabled = block.settings.sticky_enabled %}
 {% assign api_url = 'https://apurata.com/pos/acuotaz-head-band' %}
 
 {% comment %} Only render the headband if there's a configured client_id {% endcomment %}
@@ -40,7 +47,7 @@
 
 <style>
 .acuotaz-header-banner {
-  position: absolute; /* fixed for sticky */
+  position: {% if sticky_enabled %}fixed{% else %}absolute{% endif %}; /* on = fixed, off = absolute */
   top: 0;
   left: 0;
   right: 0;
