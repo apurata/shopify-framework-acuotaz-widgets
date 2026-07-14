@@ -15,16 +15,28 @@
       "default": "acuotaz_shopify_test"
     },
     {
+      "type": "select",
+      "id": "placement_mode",
+      "label": "Modo de posición",
+      "options": [
+        { "value": "fixed_top", "label": "Header superior — arriba de la página" },
+        { "value": "free", "label": "Elige dónde colocarlo en el tema" }
+      ],
+      "default": "fixed_top"
+    },
+    {
       "type": "checkbox",
       "id": "sticky_enabled",
       "label": "Sticky Headband",
-      "default": false,
-      "info": "El headband se mantiene visible en la parte superior durante el desplazamiento."    }
+      "default": true,
+      "info": "Solo aplica en modo header superior. Mantiene el headband visible al hacer scroll."
+    }
   ]
 }
 {% endschema %}
 
 {% assign client_id = block.settings.client_id %}
+{% assign placement_mode = block.settings.placement_mode %}
 {% assign sticky_enabled = block.settings.sticky_enabled %}
 {% assign api_url = 'https://apurata.com/pos/acuotaz-head-band' %}
 
@@ -47,11 +59,13 @@
 
 <style>
 .acuotaz-header-banner {
+  {% if placement_mode != 'free' %}
   position: {% if sticky_enabled %}fixed{% else %}absolute{% endif %}; /* on = fixed, off = absolute */
   top: 0;
   left: 0;
   right: 0;
   z-index: 9999;
+  {% endif %}
   background-color: #f8f8f8;
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -82,9 +96,11 @@
   vertical-align: middle;
 }
 
+{% if placement_mode != 'free' %}
 body {
   padding-top: 50px !important;
 }
+{% endif %}
 </style>
 
 {% if client_id and client_id != blank %}
