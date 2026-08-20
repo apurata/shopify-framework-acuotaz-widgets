@@ -14,11 +14,27 @@
       "info": "Token de autorización para el API",
       "default": "acuotaz_shopify_test"
     },
+    {
+      "type": "header",
+      "content": "Posición en el bloque"
+    },
+    {
+      "type": "range",
+      "id": "offset_x",
+      "min": -80,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Desplazamiento horizontal",
+      "info": "Izquierda (−) o derecha (+) dentro del slot. Se limita solo para no cortar el banner.",
+      "default": 0
+    }
   ]
 }
 {% endschema %}
 
 {% assign client_id = block.settings.client_id %}
+{% assign offset_x = block.settings.offset_x | default: 0 %}
 {% assign api_base_url = 'https://apurata.com/pos/pay-with-apurata-add-on' %}
 
 <style>
@@ -76,6 +92,18 @@
   const container = document.getElementById('acuotaz-addon-{{ block.id }}');
   if (!container) return;
 
+  const desiredOffsetX = {{ offset_x }};
+
+  // Banner is centered (margin:auto from Apurata HTML). Free space each side =
+  // (slot − banner) / 2; clamp so translateX never clips outside the slot.
+  function applyClampedOffset() {
+    const banner = container.querySelector('#acuotaz-add-on');
+    if (!banner) return;
+    const free = Math.max(0, Math.floor((container.clientWidth - banner.offsetWidth) / 2));
+    const clamped = Math.max(-free, Math.min(free, desiredOffsetX));
+    banner.style.transform = 'translateX(' + clamped + 'px)';
+  }
+
   function getProductPrice() {
     // Use Shopify product price directly
     {% if product %}
@@ -109,6 +137,7 @@
     })
     .then(html => {
       container.innerHTML = html || 'Sin información disponible';
+      requestAnimationFrame(applyClampedOffset);
     })
     .catch(error => {
       console.error('Error loading aCuotaz addon:', error);
@@ -123,6 +152,12 @@
 
   // Load initially
   loadAddon();
+
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(applyClampedOffset).observe(container);
+  } else {
+    window.addEventListener('resize', applyClampedOffset);
+  }
 
   // Reload on variant changes - optimized to only trigger on actual product changes
   let currentVariantId = null;
