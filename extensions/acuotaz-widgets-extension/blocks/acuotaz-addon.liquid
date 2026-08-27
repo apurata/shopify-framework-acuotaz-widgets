@@ -21,12 +21,12 @@
     {
       "type": "range",
       "id": "offset_x",
-      "min": -80,
-      "max": 80,
-      "step": 4,
-      "unit": "px",
+      "min": -100,
+      "max": 100,
+      "step": 2,
+      "unit": "%",
       "label": "Desplazamiento horizontal",
-      "info": "Izquierda (−) o derecha (+) dentro del slot. Se limita solo para no cortar el banner.",
+      "info": "−100% borde izquierdo, 0% centro, +100% borde derecho.",
       "default": 0
     }
   ]
@@ -92,16 +92,30 @@
   const container = document.getElementById('acuotaz-addon-{{ block.id }}');
   if (!container) return;
 
-  const desiredOffsetX = {{ offset_x }};
+  // Schema is % of free space (−100…100). Map onto real slot gaps (blue box).
+  const SLIDER_MAX = 100;
+  const sliderValue = {{ offset_x }};
 
-  // Banner is centered (margin:auto from Apurata HTML). Free space each side =
-  // (slot − banner) / 2; clamp so translateX never clips outside the slot.
+  function slotElement() {
+    return container.closest('.shopify-block, .shopify-app-block') || container.parentElement || container;
+  }
+
   function applyClampedOffset() {
     const banner = container.querySelector('#acuotaz-add-on');
     if (!banner) return;
-    const free = Math.max(0, Math.floor((container.clientWidth - banner.offsetWidth) / 2));
-    const clamped = Math.max(-free, Math.min(free, desiredOffsetX));
-    banner.style.transform = 'translateX(' + clamped + 'px)';
+    banner.style.transform = '';
+    banner.style.marginLeft = 'auto';
+    banner.style.marginRight = 'auto';
+
+    const slot = slotElement();
+    const slotRect = slot.getBoundingClientRect();
+    const bannerRect = banner.getBoundingClientRect();
+    const maxLeft = Math.max(0, Math.floor(bannerRect.left - slotRect.left));
+    const maxRight = Math.max(0, Math.floor(slotRect.right - bannerRect.right));
+
+    const t = Math.max(-1, Math.min(1, sliderValue / SLIDER_MAX));
+    const pixels = t < 0 ? Math.round(t * maxLeft) : Math.round(t * maxRight);
+    banner.style.transform = 'translateX(' + pixels + 'px)';
   }
 
   function getProductPrice() {
